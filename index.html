@@ -68,9 +68,6 @@
     .btn-pdf { background-color: var(--secondary); color: white; }
     .btn-pdf:hover { background-color: #1d4ed8; }
 
-    .btn-clear { background-color: #fee2e2; color: var(--danger); }
-    .btn-clear:hover { background-color: #fecaca; }
-
     .btn-add { background-color: var(--success); color: white; margin-top: 15px; }
     .btn-add:hover { background-color: #15803d; }
 
@@ -139,7 +136,6 @@
     .card.success { border-left-color: var(--success); }
     .card.danger { border-left-color: var(--danger); }
     .card.warning { border-left-color: var(--warning); }
-    .card.ai { border-left-color: var(--ai-color); background: #f5f3ff; }
 
     .card .title {
       font-size: 0.85rem;
@@ -154,7 +150,6 @@
       font-weight: bold;
     }
 
-    /* Caixa da IA */
     .ai-box {
       background: #faf5ff;
       border: 1px solid #ddd6fe;
@@ -235,12 +230,9 @@
   <header>
     <div>
       <h1>Painel de Gestão Empresarial 2026</h1>
-      <p style="font-size: 0.85rem; color: #64748b;">Planilha Inteligente com Assistente Miter AI</p>
+      <p style="font-size: 0.85rem; color: #64748b;">Planilha Inteligente com Correção Individual</p>
     </div>
     <div class="header-actions">
-      <button class="btn btn-clear" onclick="limparTudo()">
-        🗑️ Zerar Tudo
-      </button>
       <button class="btn btn-pdf" onclick="window.print()">
         📄 Baixar / Imprimir PDF
       </button>
@@ -258,7 +250,6 @@
   <!-- ABA 1: DASHBOARD -->
   <div id="dashboard" class="tab-content active">
     
-    <!-- Módulos de Análise de IA -->
     <div class="ai-box">
       <h3>🤖 Miter AI - Diagnóstico Financeiro Automático</h3>
       <ul class="ai-insights" id="ai-output">
@@ -314,21 +305,6 @@
           <td><input type="text" value="Cliente ABC Ltda" oninput="salvarEAtualizar()"></td>
           <td><input type="text" value="Prestação de Serviços" oninput="salvarEAtualizar()"></td>
           <td><input type="number" class="val-input" value="2500.00" step="0.01" oninput="salvarEAtualizar()"></td>
-          <td>
-            <select class="status-select" onchange="salvarEAtualizar()">
-              <option value="Pago" selected>Pago</option>
-              <option value="Pendente">Pendente</option>
-            </select>
-          </td>
-          <td><button class="btn-delete" onclick="excluirLinha(this)">❌ Excluir</button></td>
-        </tr>
-        <tr>
-          <td><input type="date" value="2026-10-02" oninput="salvarEAtualizar()"></td>
-          <td><select class="type-select" onchange="salvarEAtualizar()"><option value="Saída" selected>Saída</option><option value="Entrada">Entrada</option></select></td>
-          <td><input type="text" value="Aluguel" oninput="salvarEAtualizar()"></td>
-          <td><input type="text" value="Imobiliária Central" oninput="salvarEAtualizar()"></td>
-          <td><input type="text" value="Aluguel Sede" oninput="salvarEAtualizar()"></td>
-          <td><input type="number" class="val-input" value="1200.00" step="0.01" oninput="salvarEAtualizar()"></td>
           <td>
             <select class="status-select" onchange="salvarEAtualizar()">
               <option value="Pago" selected>Pago</option>
@@ -473,29 +449,22 @@
 
       let insights = [];
 
-      // Análise de Lucratividade
       if (data.lucro > 0) {
         const margem = data.receita > 0 ? ((data.lucro / data.receita) * 100).toFixed(1) : 0;
-        insights.push(`✅ <strong>Saúde Financeira Positiva:</strong> Sua empresa está operando com lucro de R$ ${data.lucro.toFixed(2)} (Margem Operacional de ${margem}%).`);
+        insights.push(`✅ <strong>Saúde Financeira Positiva:</strong> Lucro líquido de R$ ${data.lucro.toFixed(2)} (Margem Operacional de ${margem}%).`);
       } else if (data.lucro < 0) {
-        insights.push(`⚠️ <strong>Alerta Amarelo/Vermelho:</strong> O período apresenta prejuízo de R$ ${Math.abs(data.lucro).toFixed(2)}. Recomenda-se cortar despesas secundárias ou acelerar cobranças.`);
+        insights.push(`⚠️ <strong>Alerta:</strong> Prejuízo de R$ ${Math.abs(data.lucro).toFixed(2)}. Recomenda-se revisar despesas.`);
       } else {
-        insights.push(`ℹ️ <strong>Ponto de Equilíbrio:</strong> As receitas pagas equivalem exatamente às despesas registradas.`);
+        insights.push(`ℹ️ <strong>Ponto de Equilíbrio:</strong> Receitas e despesas pagas estão empatadas.`);
       }
 
-      // Análise de Compromissos Pendentes
       if (data.apagar > 0) {
-        if (data.apagar > data.lucro && data.lucro > 0) {
-          insights.push(`🚨 <strong>Risco de Caixa:</strong> As contas pendentes a pagar (R$ ${data.apagar.toFixed(2)}) superam seu lucro acumulado atual. Verifique seu fluxo para não atrasar pagamentos.`);
-        } else {
-          insights.push(`📌 <strong>Projeção de Contas:</strong> Há R$ ${data.apagar.toFixed(2)} em contas pendentes aguardando baixa neste período.`);
-        }
+        insights.push(`📌 <strong>Contas Pendentes:</strong> Há R$ ${data.apagar.toFixed(2)} em contas pendentes a pagar.`);
       } else {
-        insights.push(`🎉 <strong>Sem Pendências Próximas:</strong> Nenhuma conta a pagar pendente encontrada no livro caixa.`);
+        insights.push(`🎉 <strong>Sem Pendências:</strong> Nenhuma conta a pagar pendente encontrada.`);
       }
 
-      // Dica Estratégica da IA
-      insights.push(`💡 <strong>Sugestão Estratégica:</strong> Mantenha a conciliação com extratos bancários semanalmente na aba de Rotinas para garantir acurácia de 100% dos dados.`);
+      insights.push(`💡 <strong>Sugestão IA:</strong> Use o botão de exclusão individual (❌) em cada linha se precisar corrigir algum dado incorreto.`);
 
       insights.forEach(text => {
         const li = document.createElement('li');
@@ -601,13 +570,6 @@
       }
       calc();
       gerarDiagnosticoIA();
-    }
-
-    function limparTudo() {
-      if (confirm('Tem certeza que deseja apagar todos os dados salvos e resetar a planilha?')) {
-        localStorage.clear();
-        location.reload();
-      }
     }
 
     window.onload = carregarDadosSalvos;
