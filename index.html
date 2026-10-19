@@ -49,6 +49,7 @@
     .header-actions {
       display: flex;
       gap: 10px;
+      flex-wrap: wrap;
     }
 
     .btn {
@@ -74,6 +75,23 @@
       color: var(--danger);
     }
     .btn-clear:hover { background-color: #fecaca; }
+
+    .btn-add {
+      background-color: var(--success);
+      color: white;
+      margin-top: 15px;
+    }
+    .btn-add:hover { background-color: #15803d; }
+
+    .btn-delete {
+      background-color: #fee2e2;
+      color: var(--danger);
+      padding: 6px 10px;
+      border-radius: 4px;
+      border: none;
+      cursor: pointer;
+    }
+    .btn-delete:hover { background-color: #fecaca; }
 
     .nav-tabs {
       display: flex;
@@ -179,7 +197,7 @@
 
     @media print {
       body { background-color: white; padding: 0; }
-      .btn, .nav-tabs { display: none !important; }
+      .btn, .nav-tabs, .btn-delete { display: none !important; }
       .tab-content { display: block !important; box-shadow: none; border: none; page-break-after: always; }
       input, select { border: none; background: transparent; appearance: none; }
       @page { size: A4 landscape; margin: 1cm; }
@@ -191,11 +209,11 @@
   <header>
     <div>
       <h1>Painel de Gestão Empresarial 2026</h1>
-      <p style="font-size: 0.85rem; color: #64748b;">Planilha Digitável Interativa com Auto-Salvamento</p>
+      <p style="font-size: 0.85rem; color: #64748b;">Planilha Interativa com Exclusão Individual e Auto-Salvamento</p>
     </div>
     <div class="header-actions">
-      <button class="btn btn-clear" onclick="limparDados()">
-        🗑️ Limpar Dados
+      <button class="btn btn-clear" onclick="limparTudo()">
+        🗑️ Zerar Tudo
       </button>
       <button class="btn btn-pdf" onclick="window.print()">
         📄 Baixar / Imprimir PDF
@@ -247,7 +265,7 @@
           <th>Descrição</th>
           <th>Valor (R$)</th>
           <th>Status</th>
-          <th>Conciliado?</th>
+          <th>Ações</th>
         </tr>
       </thead>
       <tbody id="tb-lancamentos">
@@ -264,7 +282,7 @@
               <option value="Pendente">Pendente</option>
             </select>
           </td>
-          <td><select onchange="salvarEAtualizar()"><option>Sim</option><option>Não</option></select></td>
+          <td><button class="btn-delete" onclick="excluirLinha(this)">❌ Excluir</button></td>
         </tr>
         <tr>
           <td><input type="date" value="2026-10-02" oninput="salvarEAtualizar()"></td>
@@ -279,10 +297,11 @@
               <option value="Pendente">Pendente</option>
             </select>
           </td>
-          <td><select onchange="salvarEAtualizar()"><option>Sim</option><option>Não</option></select></td>
+          <td><button class="btn-delete" onclick="excluirLinha(this)">❌ Excluir</button></td>
         </tr>
       </tbody>
     </table>
+    <button class="btn btn-add" onclick="adicionarLinhaLancamento()">➕ Adicionar Novo Lançamento</button>
   </div>
 
   <!-- ABA 3: PRECIFICAÇÃO E ESTOQUE -->
@@ -296,7 +315,7 @@
           <th>Custo Atual (R$)</th>
           <th>Margem (%)</th>
           <th>Preço Venda (R$)</th>
-          <th>Sugestão Reajuste</th>
+          <th>Ações</th>
         </tr>
       </thead>
       <tbody id="tb-precificacao">
@@ -306,10 +325,11 @@
           <td><input type="number" value="18.00" step="0.01" oninput="salvarEAtualizar()"></td>
           <td><input type="number" value="50" oninput="salvarEAtualizar()"></td>
           <td><input type="number" value="30.00" step="0.01" oninput="salvarEAtualizar()"></td>
-          <td><span class="badge badge-success">Preço Ok</span></td>
+          <td><button class="btn-delete" onclick="excluirLinha(this)">❌ Excluir</button></td>
         </tr>
       </tbody>
     </table>
+    <button class="btn btn-add" onclick="adicionarLinhaPrecificacao()">➕ Adicionar Novo Produto</button>
   </div>
 
   <!-- ABA 4: BANCO DE DADOS -->
@@ -321,8 +341,8 @@
           <th>ID</th>
           <th>Razão Social / Nome</th>
           <th>Tipo</th>
-          <th>CPF/CNPJ</th>
           <th>Contato</th>
+          <th>Ações</th>
         </tr>
       </thead>
       <tbody id="tb-cadastros">
@@ -330,11 +350,12 @@
           <td>CAD-001</td>
           <td><input type="text" value="Cliente ABC Ltda" oninput="salvarEAtualizar()"></td>
           <td><input type="text" value="Cliente" oninput="salvarEAtualizar()"></td>
-          <td><input type="text" value="00.000.000/0001-00" oninput="salvarEAtualizar()"></td>
           <td><input type="text" value="(31) 99999-0001" oninput="salvarEAtualizar()"></td>
+          <td><button class="btn-delete" onclick="excluirLinha(this)">❌ Excluir</button></td>
         </tr>
       </tbody>
     </table>
+    <button class="btn btn-add" onclick="adicionarLinhaCadastro()">➕ Adicionar Novo Cadastro</button>
   </div>
 
   <!-- ABA 5: ROTINAS DE ATUALIZAÇÃO -->
@@ -347,17 +368,20 @@
           <th>Tarefa / Rotina</th>
           <th>Responsável</th>
           <th>Status</th>
+          <th>Ações</th>
         </tr>
       </thead>
-      <tbody>
+      <tbody id="tb-rotinas">
         <tr>
           <td>Diária</td>
           <td>Lançamento de Entradas e Saídas</td>
           <td>Financeiro</td>
           <td><span class="badge badge-success">Concluído</span></td>
+          <td><button class="btn-delete" onclick="excluirLinha(this)">❌ Excluir</button></td>
         </tr>
       </tbody>
     </table>
+    <button class="btn btn-add" onclick="adicionarLinhaRotina()">➕ Adicionar Nova Rotina</button>
   </div>
 
   <script>
@@ -376,15 +400,21 @@
 
       const rows = document.querySelectorAll('#tb-lancamentos tr');
       rows.forEach(row => {
-        const type = row.querySelector('.type-select').value;
-        const status = row.querySelector('.status-select').value;
-        const val = parseFloat(row.querySelector('.val-input').value) || 0;
+        const typeSelect = row.querySelector('.type-select');
+        const statusSelect = row.querySelector('.status-select');
+        const valInput = row.querySelector('.val-input');
 
-        if (status === 'Pago') {
-          if (type === 'Entrada') receita += val;
-          if (type === 'Saída') despesa += val;
-        } else if (status === 'Pendente' && type === 'Saída') {
-          apagar += val;
+        if (typeSelect && statusSelect && valInput) {
+          const type = typeSelect.value;
+          const status = statusSelect.value;
+          const val = parseFloat(valInput.value) || 0;
+
+          if (status === 'Pago') {
+            if (type === 'Entrada') receita += val;
+            if (type === 'Saída') despesa += val;
+          } else if (status === 'Pendente' && type === 'Saída') {
+            apagar += val;
+          }
         }
       });
 
@@ -396,12 +426,85 @@
       document.getElementById('dash-apagar').innerText = `R$ ${apagar.toFixed(2)}`;
     }
 
+    function excluirLinha(btn) {
+      if (confirm('Deseja realmente excluir esta anotação/linha?')) {
+        const row = btn.closest('tr');
+        row.remove();
+        salvarEAtualizar();
+      }
+    }
+
+    function adicionarLinhaLancamento() {
+      const tbody = document.getElementById('tb-lancamentos');
+      const newRow = document.createElement('tr');
+      newRow.innerHTML = `
+        <td><input type="date" oninput="salvarEAtualizar()"></td>
+        <td><select class="type-select" onchange="salvarEAtualizar()"><option value="Entrada">Entrada</option><option value="Saída">Saída</option></select></td>
+        <td><input type="text" placeholder="Categoria" oninput="salvarEAtualizar()"></td>
+        <td><input type="text" placeholder="Pessoa" oninput="salvarEAtualizar()"></td>
+        <td><input type="text" placeholder="Descrição" oninput="salvarEAtualizar()"></td>
+        <td><input type="number" class="val-input" value="0.00" step="0.01" oninput="salvarEAtualizar()"></td>
+        <td>
+          <select class="status-select" onchange="salvarEAtualizar()">
+            <option value="Pago">Pago</option>
+            <option value="Pendente" selected>Pendente</option>
+          </select>
+        </td>
+        <td><button class="btn-delete" onclick="excluirLinha(this)">❌ Excluir</button></td>
+      `;
+      tbody.appendChild(newRow);
+      salvarEAtualizar();
+    }
+
+    function adicionarLinhaPrecificacao() {
+      const tbody = document.getElementById('tb-precificacao');
+      const newRow = document.createElement('tr');
+      newRow.innerHTML = `
+        <td>SKU-NOVO</td>
+        <td><input type="text" placeholder="Nome do Produto" oninput="salvarEAtualizar()"></td>
+        <td><input type="number" value="0.00" step="0.01" oninput="salvarEAtualizar()"></td>
+        <td><input type="number" value="50" oninput="salvarEAtualizar()"></td>
+        <td><input type="number" value="0.00" step="0.01" oninput="salvarEAtualizar()"></td>
+        <td><button class="btn-delete" onclick="excluirLinha(this)">❌ Excluir</button></td>
+      `;
+      tbody.appendChild(newRow);
+      salvarEAtualizar();
+    }
+
+    function adicionarLinhaCadastro() {
+      const tbody = document.getElementById('tb-cadastros');
+      const newRow = document.createElement('tr');
+      newRow.innerHTML = `
+        <td>CAD-NOVO</td>
+        <td><input type="text" placeholder="Nome / Razão Social" oninput="salvarEAtualizar()"></td>
+        <td><input type="text" placeholder="Cliente / Fornecedor" oninput="salvarEAtualizar()"></td>
+        <td><input type="text" placeholder="Contato" oninput="salvarEAtualizar()"></td>
+        <td><button class="btn-delete" onclick="excluirLinha(this)">❌ Excluir</button></td>
+      `;
+      tbody.appendChild(newRow);
+      salvarEAtualizar();
+    }
+
+    function adicionarLinhaRotina() {
+      const tbody = document.getElementById('tb-rotinas');
+      const newRow = document.createElement('tr');
+      newRow.innerHTML = `
+        <td><input type="text" placeholder="Frequência" oninput="salvarEAtualizar()"></td>
+        <td><input type="text" placeholder="Tarefa" oninput="salvarEAtualizar()"></td>
+        <td><input type="text" placeholder="Responsável" oninput="salvarEAtualizar()"></td>
+        <td><input type="text" placeholder="Status" oninput="salvarEAtualizar()"></td>
+        <td><button class="btn-delete" onclick="excluirLinha(this)">❌ Excluir</button></td>
+      `;
+      tbody.appendChild(newRow);
+      salvarEAtualizar();
+    }
+
     function salvarEAtualizar() {
       calc();
-      // Salva o HTML atual das tabelas no navegador
       localStorage.setItem('lancamentos_html', document.getElementById('tb-lancamentos').innerHTML);
       localStorage.setItem('precificacao_html', document.getElementById('tb-precificacao').innerHTML);
       localStorage.setItem('cadastros_html', document.getElementById('tb-cadastros').innerHTML);
+      localStorage.setItem('rotinas_html', document.getElementById('tb-rotinas').innerHTML);
     }
 
     function carregarDadosSalvos() {
@@ -414,11 +517,14 @@
       if (localStorage.getItem('cadastros_html')) {
         document.getElementById('tb-cadastros').innerHTML = localStorage.getItem('cadastros_html');
       }
+      if (localStorage.getItem('rotinas_html')) {
+        document.getElementById('tb-rotinas').innerHTML = localStorage.getItem('rotinas_html');
+      }
       calc();
     }
 
-    function limparDados() {
-      if (confirm('Tem certeza que deseja limpar todos os dados preenchidos e zerar a planilha?')) {
+    function limparTudo() {
+      if (confirm('Tem certeza que deseja apagar todos os dados salvos e resetar a planilha?')) {
         localStorage.clear();
         location.reload();
       }
