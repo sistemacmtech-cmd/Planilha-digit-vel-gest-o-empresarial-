@@ -37,6 +37,8 @@
       margin-bottom: 20px;
       padding-bottom: 15px;
       border-bottom: 2px solid var(--border);
+      flex-wrap: wrap;
+      gap: 10px;
     }
 
     h1 {
@@ -44,11 +46,14 @@
       color: var(--primary);
     }
 
-    .btn-pdf {
-      background-color: var(--secondary);
-      color: white;
+    .header-actions {
+      display: flex;
+      gap: 10px;
+    }
+
+    .btn {
       border: none;
-      padding: 10px 18px;
+      padding: 10px 16px;
       border-radius: 6px;
       cursor: pointer;
       font-weight: bold;
@@ -58,9 +63,17 @@
       transition: background 0.2s;
     }
 
-    .btn-pdf:hover {
-      background-color: #1d4ed8;
+    .btn-pdf {
+      background-color: var(--secondary);
+      color: white;
     }
+    .btn-pdf:hover { background-color: #1d4ed8; }
+
+    .btn-clear {
+      background-color: #fee2e2;
+      color: var(--danger);
+    }
+    .btn-clear:hover { background-color: #fecaca; }
 
     .nav-tabs {
       display: flex;
@@ -97,7 +110,6 @@
       display: block;
     }
 
-    /* Cards do Dashboard */
     .dashboard-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -116,7 +128,7 @@
     .card.danger { border-left-color: var(--danger); }
     .card.warning { border-left-color: var(--warning); }
 
-    .card title {
+    .card .title {
       font-size: 0.85rem;
       color: #64748b;
       font-weight: bold;
@@ -129,7 +141,6 @@
       font-weight: bold;
     }
 
-    /* Tabelas */
     table {
       width: 100%;
       border-collapse: collapse;
@@ -166,35 +177,12 @@
     .badge-success { background-color: #dcfce7; color: #166534; }
     .badge-warning { background-color: #fef3c7; color: #92400e; }
 
-    /* Estilização para Impressão / PDF */
     @media print {
-      body {
-        background-color: white;
-        padding: 0;
-      }
-
-      .btn-pdf, .nav-tabs {
-        display: none !important;
-      }
-
-      .tab-content {
-        display: block !important;
-        box-shadow: none;
-        border: none;
-        page-break-after: always;
-      }
-
-      input, select {
-        border: none;
-        background: transparent;
-        appearance: none;
-        -webkit-appearance: none;
-      }
-
-      @page {
-        size: A4 landscape;
-        margin: 1cm;
-      }
+      body { background-color: white; padding: 0; }
+      .btn, .nav-tabs { display: none !important; }
+      .tab-content { display: block !important; box-shadow: none; border: none; page-break-after: always; }
+      input, select { border: none; background: transparent; appearance: none; }
+      @page { size: A4 landscape; margin: 1cm; }
     }
   </style>
 </head>
@@ -203,14 +191,18 @@
   <header>
     <div>
       <h1>Painel de Gestão Empresarial 2026</h1>
-      <p style="font-size: 0.85rem; color: #64748b;">Planilha Interativa com Exportação de Relatórios</p>
+      <p style="font-size: 0.85rem; color: #64748b;">Planilha Digitável Interativa com Auto-Salvamento</p>
     </div>
-    <button class="btn-pdf" onclick="window.print()">
-      📄 Baixar / Imprimir PDF
-    </button>
+    <div class="header-actions">
+      <button class="btn btn-clear" onclick="limparDados()">
+        🗑️ Limpar Dados
+      </button>
+      <button class="btn btn-pdf" onclick="window.print()">
+        📄 Baixar / Imprimir PDF
+      </button>
+    </div>
   </header>
 
-  <!-- Navegação por Abas -->
   <div class="nav-tabs">
     <button class="tab-btn active" onclick="switchTab('dashboard')">📊 Dashboard & DRE</button>
     <button class="tab-btn" onclick="switchTab('lancamentos')">💰 Lançamentos Financeiros</button>
@@ -260,49 +252,34 @@
       </thead>
       <tbody id="tb-lancamentos">
         <tr>
-          <td><input type="date" value="2026-10-01"></td>
-          <td><select class="type-select" onchange="calc()"><option value="Entrada">Entrada</option><option value="Saída">Saída</option></select></td>
-          <td><input type="text" value="Venda de Serviços"></td>
-          <td><input type="text" value="Cliente ABC Ltda"></td>
-          <td><input type="text" value="Prestação de Serviços"></td>
-          <td><input type="number" class="val-input" value="2500.00" step="0.01" onchange="calc()"></td>
+          <td><input type="date" value="2026-10-01" oninput="salvarEAtualizar()"></td>
+          <td><select class="type-select" onchange="salvarEAtualizar()"><option value="Entrada">Entrada</option><option value="Saída">Saída</option></select></td>
+          <td><input type="text" value="Venda de Serviços" oninput="salvarEAtualizar()"></td>
+          <td><input type="text" value="Cliente ABC Ltda" oninput="salvarEAtualizar()"></td>
+          <td><input type="text" value="Prestação de Serviços" oninput="salvarEAtualizar()"></td>
+          <td><input type="number" class="val-input" value="2500.00" step="0.01" oninput="salvarEAtualizar()"></td>
           <td>
-            <select class="status-select" onchange="calc()">
+            <select class="status-select" onchange="salvarEAtualizar()">
               <option value="Pago" selected>Pago</option>
               <option value="Pendente">Pendente</option>
             </select>
           </td>
-          <td><select><option>Sim</option><option>Não</option></select></td>
+          <td><select onchange="salvarEAtualizar()"><option>Sim</option><option>Não</option></select></td>
         </tr>
         <tr>
-          <td><input type="date" value="2026-10-02"></td>
-          <td><select class="type-select" onchange="calc()"><option value="Saída" selected>Saída</option><option value="Entrada">Entrada</option></select></td>
-          <td><input type="text" value="Aluguel"></td>
-          <td><input type="text" value="Imobiliária Central"></td>
-          <td><input type="text" value="Aluguel Sede"></td>
-          <td><input type="number" class="val-input" value="1200.00" step="0.01" onchange="calc()"></td>
+          <td><input type="date" value="2026-10-02" oninput="salvarEAtualizar()"></td>
+          <td><select class="type-select" onchange="salvarEAtualizar()"><option value="Saída" selected>Saída</option><option value="Entrada">Entrada</option></select></td>
+          <td><input type="text" value="Aluguel" oninput="salvarEAtualizar()"></td>
+          <td><input type="text" value="Imobiliária Central" oninput="salvarEAtualizar()"></td>
+          <td><input type="text" value="Aluguel Sede" oninput="salvarEAtualizar()"></td>
+          <td><input type="number" class="val-input" value="1200.00" step="0.01" oninput="salvarEAtualizar()"></td>
           <td>
-            <select class="status-select" onchange="calc()">
+            <select class="status-select" onchange="salvarEAtualizar()">
               <option value="Pago" selected>Pago</option>
               <option value="Pendente">Pendente</option>
             </select>
           </td>
-          <td><select><option>Sim</option><option>Não</option></select></td>
-        </tr>
-        <tr>
-          <td><input type="date" value="2026-10-05"></td>
-          <td><select class="type-select" onchange="calc()"><option value="Saída" selected>Saída</option><option value="Entrada">Entrada</option></select></td>
-          <td><input type="text" value="Insumos"></td>
-          <td><input type="text" value="Distribuidora Silva"></td>
-          <td><input type="text" value="Matéria Prima NF 458"></td>
-          <td><input type="number" class="val-input" value="850.00" step="0.01" onchange="calc()"></td>
-          <td>
-            <select class="status-select" onchange="calc()">
-              <option value="Pendente" selected>Pendente</option>
-              <option value="Pago">Pago</option>
-            </select>
-          </td>
-          <td><select><option selected>Não</option><option>Sim</option></select></td>
+          <td><select onchange="salvarEAtualizar()"><option>Sim</option><option>Não</option></select></td>
         </tr>
       </tbody>
     </table>
@@ -322,22 +299,14 @@
           <th>Sugestão Reajuste</th>
         </tr>
       </thead>
-      <tbody>
+      <tbody id="tb-precificacao">
         <tr>
           <td>PRD-001</td>
-          <td><input type="text" value="Produto Exemplo A"></td>
-          <td><input type="number" value="18.00" step="0.01"></td>
-          <td><input type="number" value="50"></td>
-          <td><input type="number" value="30.00" step="0.01"></td>
+          <td><input type="text" value="Produto Exemplo A" oninput="salvarEAtualizar()"></td>
+          <td><input type="number" value="18.00" step="0.01" oninput="salvarEAtualizar()"></td>
+          <td><input type="number" value="50" oninput="salvarEAtualizar()"></td>
+          <td><input type="number" value="30.00" step="0.01" oninput="salvarEAtualizar()"></td>
           <td><span class="badge badge-success">Preço Ok</span></td>
-        </tr>
-        <tr>
-          <td>PRD-002</td>
-          <td><input type="text" value="Produto Exemplo B"></td>
-          <td><input type="number" value="130.00" step="0.01"></td>
-          <td><input type="number" value="45"></td>
-          <td><input type="number" value="250.00" step="0.01"></td>
-          <td><span class="badge badge-warning">Revisar Custo</span></td>
         </tr>
       </tbody>
     </table>
@@ -356,20 +325,13 @@
           <th>Contato</th>
         </tr>
       </thead>
-      <tbody>
+      <tbody id="tb-cadastros">
         <tr>
           <td>CAD-001</td>
-          <td><input type="text" value="Cliente ABC Ltda"></td>
-          <td>Cliente</td>
-          <td>00.000.000/0001-00</td>
-          <td>(31) 99999-0001</td>
-        </tr>
-        <tr>
-          <td>CAD-002</td>
-          <td><input type="text" value="Imobiliária Central"></td>
-          <td>Fornecedor</td>
-          <td>11.111.111/0001-11</td>
-          <td>(31) 99999-0002</td>
+          <td><input type="text" value="Cliente ABC Ltda" oninput="salvarEAtualizar()"></td>
+          <td><input type="text" value="Cliente" oninput="salvarEAtualizar()"></td>
+          <td><input type="text" value="00.000.000/0001-00" oninput="salvarEAtualizar()"></td>
+          <td><input type="text" value="(31) 99999-0001" oninput="salvarEAtualizar()"></td>
         </tr>
       </tbody>
     </table>
@@ -393,12 +355,6 @@
           <td>Lançamento de Entradas e Saídas</td>
           <td>Financeiro</td>
           <td><span class="badge badge-success">Concluído</span></td>
-        </tr>
-        <tr>
-          <td>Semanal</td>
-          <td>Reconciliação Bancária com Extrato</td>
-          <td>Gestor</td>
-          <td><span class="badge badge-warning">Pendente</span></td>
         </tr>
       </tbody>
     </table>
@@ -440,8 +396,35 @@
       document.getElementById('dash-apagar').innerText = `R$ ${apagar.toFixed(2)}`;
     }
 
-    // Calcular totais iniciais ao carregar a página
-    window.onload = calc;
+    function salvarEAtualizar() {
+      calc();
+      // Salva o HTML atual das tabelas no navegador
+      localStorage.setItem('lancamentos_html', document.getElementById('tb-lancamentos').innerHTML);
+      localStorage.setItem('precificacao_html', document.getElementById('tb-precificacao').innerHTML);
+      localStorage.setItem('cadastros_html', document.getElementById('tb-cadastros').innerHTML);
+    }
+
+    function carregarDadosSalvos() {
+      if (localStorage.getItem('lancamentos_html')) {
+        document.getElementById('tb-lancamentos').innerHTML = localStorage.getItem('lancamentos_html');
+      }
+      if (localStorage.getItem('precificacao_html')) {
+        document.getElementById('tb-precificacao').innerHTML = localStorage.getItem('precificacao_html');
+      }
+      if (localStorage.getItem('cadastros_html')) {
+        document.getElementById('tb-cadastros').innerHTML = localStorage.getItem('cadastros_html');
+      }
+      calc();
+    }
+
+    function limparDados() {
+      if (confirm('Tem certeza que deseja limpar todos os dados preenchidos e zerar a planilha?')) {
+        localStorage.clear();
+        location.reload();
+      }
+    }
+
+    window.onload = carregarDadosSalvos;
   </script>
 </body>
 </html>
