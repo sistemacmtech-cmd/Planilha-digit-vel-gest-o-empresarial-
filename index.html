@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sistema de Gestão Empresarial 2026</title>
+  <title>Sistema de Gestão Empresarial 2026 com IA</title>
   <style>
     :root {
       --primary: #1e293b;
@@ -11,6 +11,7 @@
       --success: #16a34a;
       --danger: #dc2626;
       --warning: #d97706;
+      --ai-color: #7c3aed;
       --bg: #f8fafc;
       --card-bg: #ffffff;
       --text: #0f172a;
@@ -64,24 +65,17 @@
       transition: background 0.2s;
     }
 
-    .btn-pdf {
-      background-color: var(--secondary);
-      color: white;
-    }
+    .btn-pdf { background-color: var(--secondary); color: white; }
     .btn-pdf:hover { background-color: #1d4ed8; }
 
-    .btn-clear {
-      background-color: #fee2e2;
-      color: var(--danger);
-    }
+    .btn-clear { background-color: #fee2e2; color: var(--danger); }
     .btn-clear:hover { background-color: #fecaca; }
 
-    .btn-add {
-      background-color: var(--success);
-      color: white;
-      margin-top: 15px;
-    }
+    .btn-add { background-color: var(--success); color: white; margin-top: 15px; }
     .btn-add:hover { background-color: #15803d; }
+
+    .btn-ai { background-color: var(--ai-color); color: white; }
+    .btn-ai:hover { background-color: #6d28d9; }
 
     .btn-delete {
       background-color: #fee2e2;
@@ -145,6 +139,7 @@
     .card.success { border-left-color: var(--success); }
     .card.danger { border-left-color: var(--danger); }
     .card.warning { border-left-color: var(--warning); }
+    .card.ai { border-left-color: var(--ai-color); background: #f5f3ff; }
 
     .card .title {
       font-size: 0.85rem;
@@ -157,6 +152,37 @@
     .card .value {
       font-size: 1.4rem;
       font-weight: bold;
+    }
+
+    /* Caixa da IA */
+    .ai-box {
+      background: #faf5ff;
+      border: 1px solid #ddd6fe;
+      border-radius: 8px;
+      padding: 15px;
+      margin-bottom: 20px;
+    }
+
+    .ai-box h3 {
+      color: var(--ai-color);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px;
+      font-size: 1.1rem;
+    }
+
+    .ai-insights {
+      list-style-type: none;
+    }
+
+    .ai-insights li {
+      padding: 8px 12px;
+      background: white;
+      border-radius: 6px;
+      margin-bottom: 6px;
+      border: 1px solid #e9d5ff;
+      font-size: 0.9rem;
     }
 
     table {
@@ -209,7 +235,7 @@
   <header>
     <div>
       <h1>Painel de Gestão Empresarial 2026</h1>
-      <p style="font-size: 0.85rem; color: #64748b;">Planilha Interativa com Exclusão Individual e Auto-Salvamento</p>
+      <p style="font-size: 0.85rem; color: #64748b;">Planilha Inteligente com Assistente Miter AI</p>
     </div>
     <div class="header-actions">
       <button class="btn btn-clear" onclick="limparTudo()">
@@ -231,6 +257,18 @@
 
   <!-- ABA 1: DASHBOARD -->
   <div id="dashboard" class="tab-content active">
+    
+    <!-- Módulos de Análise de IA -->
+    <div class="ai-box">
+      <h3>🤖 Miter AI - Diagnóstico Financeiro Automático</h3>
+      <ul class="ai-insights" id="ai-output">
+        <li>Aguardando dados para gerar diagnóstico...</li>
+      </ul>
+      <button class="btn btn-ai" style="margin-top: 10px;" onclick="gerarDiagnosticoIA()">
+        ✨ Recalcular Insights da IA
+      </button>
+    </div>
+
     <h2>Resumo Financeiro (DRE Sintético)</h2>
     <div class="dashboard-grid" style="margin-top: 15px;">
       <div class="card success">
@@ -424,6 +462,46 @@
       document.getElementById('dash-despesa').innerText = `R$ ${despesa.toFixed(2)}`;
       document.getElementById('dash-lucro').innerText = `R$ ${lucro.toFixed(2)}`;
       document.getElementById('dash-apagar').innerText = `R$ ${apagar.toFixed(2)}`;
+
+      return { receita, despesa, lucro, apagar };
+    }
+
+    function gerarDiagnosticoIA() {
+      const data = calc();
+      const output = document.getElementById('ai-output');
+      output.innerHTML = '';
+
+      let insights = [];
+
+      // Análise de Lucratividade
+      if (data.lucro > 0) {
+        const margem = data.receita > 0 ? ((data.lucro / data.receita) * 100).toFixed(1) : 0;
+        insights.push(`✅ <strong>Saúde Financeira Positiva:</strong> Sua empresa está operando com lucro de R$ ${data.lucro.toFixed(2)} (Margem Operacional de ${margem}%).`);
+      } else if (data.lucro < 0) {
+        insights.push(`⚠️ <strong>Alerta Amarelo/Vermelho:</strong> O período apresenta prejuízo de R$ ${Math.abs(data.lucro).toFixed(2)}. Recomenda-se cortar despesas secundárias ou acelerar cobranças.`);
+      } else {
+        insights.push(`ℹ️ <strong>Ponto de Equilíbrio:</strong> As receitas pagas equivalem exatamente às despesas registradas.`);
+      }
+
+      // Análise de Compromissos Pendentes
+      if (data.apagar > 0) {
+        if (data.apagar > data.lucro && data.lucro > 0) {
+          insights.push(`🚨 <strong>Risco de Caixa:</strong> As contas pendentes a pagar (R$ ${data.apagar.toFixed(2)}) superam seu lucro acumulado atual. Verifique seu fluxo para não atrasar pagamentos.`);
+        } else {
+          insights.push(`📌 <strong>Projeção de Contas:</strong> Há R$ ${data.apagar.toFixed(2)} em contas pendentes aguardando baixa neste período.`);
+        }
+      } else {
+        insights.push(`🎉 <strong>Sem Pendências Próximas:</strong> Nenhuma conta a pagar pendente encontrada no livro caixa.`);
+      }
+
+      // Dica Estratégica da IA
+      insights.push(`💡 <strong>Sugestão Estratégica:</strong> Mantenha a conciliação com extratos bancários semanalmente na aba de Rotinas para garantir acurácia de 100% dos dados.`);
+
+      insights.forEach(text => {
+        const li = document.createElement('li');
+        li.innerHTML = text;
+        output.appendChild(li);
+      });
     }
 
     function excluirLinha(btn) {
@@ -501,6 +579,7 @@
 
     function salvarEAtualizar() {
       calc();
+      gerarDiagnosticoIA();
       localStorage.setItem('lancamentos_html', document.getElementById('tb-lancamentos').innerHTML);
       localStorage.setItem('precificacao_html', document.getElementById('tb-precificacao').innerHTML);
       localStorage.setItem('cadastros_html', document.getElementById('tb-cadastros').innerHTML);
@@ -521,6 +600,7 @@
         document.getElementById('tb-rotinas').innerHTML = localStorage.getItem('rotinas_html');
       }
       calc();
+      gerarDiagnosticoIA();
     }
 
     function limparTudo() {
