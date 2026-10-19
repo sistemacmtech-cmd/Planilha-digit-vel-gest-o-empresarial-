@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sistema de Gestão Empresarial 2026</title>
+  <style>
+    :root {
+      --primary: #1e293b;
+      --secondary: #2563eb;
+      --success: #16a34a;
+      --danger: #dc2626;
+      --warning: #d97706;
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --text: #0f172a;
+      --border: #e2e8f0;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      padding: 20px;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      padding-bottom: 15px;
+      border-bottom: 2px solid var(--border);
+    }
+
+    h1 {
+      font-size: 1.5rem;
+      color: var(--primary);
+    }
+
+    .btn-pdf {
+      background-color: var(--secondary);
+      color: white;
+      border: none;
+      padding: 10px 18px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: background 0.2s;
+    }
+
+    .btn-pdf:hover {
+      background-color: #1d4ed8;
+    }
+
+    .nav-tabs {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    .tab-btn {
+      padding: 10px 16px;
+      background: #e2e8f0;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      color: var(--primary);
+    }
+
+    .tab-btn.active {
+      background: var(--secondary);
+      color: white;
+    }
+
+    .tab-content {
+      display: none;
+      background: var(--card-bg);
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+      border: 1px solid var(--border);
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    /* Cards do Dashboard */
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 15px;
+      margin-bottom: 25px;
+    }
+
+    .card {
+      padding: 15px;
+      border-radius: 8px;
+      background: #f1f5f9;
+      border-left: 5px solid var(--secondary);
+    }
+
+    .card.success { border-left-color: var(--success); }
+    .card.danger { border-left-color: var(--danger); }
+    .card.warning { border-left-color: var(--warning); }
+
+    .card title {
+      font-size: 0.85rem;
+      color: #64748b;
+      font-weight: bold;
+      display: block;
+      margin-bottom: 5px;
+    }
+
+    .card .value {
+      font-size: 1.4rem;
+      font-weight: bold;
+    }
+
+    /* Tabelas */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+
+    th, td {
+      border: 1px solid var(--border);
+      padding: 10px;
+      text-align: left;
+      font-size: 0.9rem;
+    }
+
+    th {
+      background-color: #f1f5f9;
+      color: var(--primary);
+    }
+
+    input, select {
+      width: 100%;
+      padding: 6px 8px;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      background-color: #fff;
+    }
+
+    .badge {
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-weight: bold;
+      font-size: 0.75rem;
+    }
+
+    .badge-success { background-color: #dcfce7; color: #166534; }
+    .badge-warning { background-color: #fef3c7; color: #92400e; }
+
+    /* Estilização para Impressão / PDF */
+    @media print {
+      body {
+        background-color: white;
+        padding: 0;
+      }
+
+      .btn-pdf, .nav-tabs {
+        display: none !important;
+      }
+
+      .tab-content {
+        display: block !important;
+        box-shadow: none;
+        border: none;
+        page-break-after: always;
+      }
+
+      input, select {
+        border: none;
+        background: transparent;
+        appearance: none;
+        -webkit-appearance: none;
+      }
+
+      @page {
+        size: A4 landscape;
+        margin: 1cm;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div>
+      <h1>Painel de Gestão Empresarial 2026</h1>
+      <p style="font-size: 0.85rem; color: #64748b;">Planilha Interativa com Exportação de Relatórios</p>
+    </div>
+    <button class="btn-pdf" onclick="window.print()">
+      📄 Baixar / Imprimir PDF
+    </button>
+  </header>
+
+  <!-- Navegação por Abas -->
+  <div class="nav-tabs">
+    <button class="tab-btn active" onclick="switchTab('dashboard')">📊 Dashboard & DRE</button>
+    <button class="tab-btn" onclick="switchTab('lancamentos')">💰 Lançamentos Financeiros</button>
+    <button class="tab-btn" onclick="switchTab('precificacao')">🏷️ Precificação & Estoque</button>
+    <button class="tab-btn" onclick="switchTab('cadastros')">👥 Banco de Dados</button>
+    <button class="tab-btn" onclick="switchTab('rotinas')">📅 Rotinas & Atualizações</button>
+  </div>
+
+  <!-- ABA 1: DASHBOARD -->
+  <div id="dashboard" class="tab-content active">
+    <h2>Resumo Financeiro (DRE Sintético)</h2>
+    <div class="dashboard-grid" style="margin-top: 15px;">
+      <div class="card success">
+        <span class="title">TOTAL RECEITAS (PAGAS)</span>
+        <div class="value" id="dash-receita">R$ 0,00</div>
+      </div>
+      <div class="card danger">
+        <span class="title">TOTAL DESPESAS (PAGAS)</span>
+        <div class="value" id="dash-despesa">R$ 0,00</div>
+      </div>
+      <div class="card">
+        <span class="title">LUCRO LÍQUIDO</span>
+        <div class="value" id="dash-lucro">R$ 0,00</div>
+      </div>
+      <div class="card warning">
+        <span class="title">CONTAS A PAGAR (PENDENTES)</span>
+        <div class="value" id="dash-apagar">R$ 0,00</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ABA 2: LANÇAMENTOS -->
+  <div id="lancamentos" class="tab-content">
+    <h2>Lançamentos Financeiros (Livro Caixa)</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Data</th>
+          <th>Tipo</th>
+          <th>Categoria</th>
+          <th>Cliente / Fornecedor</th>
+          <th>Descrição</th>
+          <th>Valor (R$)</th>
+          <th>Status</th>
+          <th>Conciliado?</th>
+        </tr>
+      </thead>
+      <tbody id="tb-lancamentos">
+        <tr>
+          <td><input type="date" value="2026-10-01"></td>
+          <td><select class="type-select" onchange="calc()"><option value="Entrada">Entrada</option><option value="Saída">Saída</option></select></td>
+          <td><input type="text" value="Venda de Serviços"></td>
+          <td><input type="text" value="Cliente ABC Ltda"></td>
+          <td><input type="text" value="Prestação de Serviços"></td>
+          <td><input type="number" class="val-input" value="2500.00" step="0.01" onchange="calc()"></td>
+          <td>
+            <select class="status-select" onchange="calc()">
+              <option value="Pago" selected>Pago</option>
+              <option value="Pendente">Pendente</option>
+            </select>
+          </td>
+          <td><select><option>Sim</option><option>Não</option></select></td>
+        </tr>
+        <tr>
+          <td><input type="date" value="2026-10-02"></td>
+          <td><select class="type-select" onchange="calc()"><option value="Saída" selected>Saída</option><option value="Entrada">Entrada</option></select></td>
+          <td><input type="text" value="Aluguel"></td>
+          <td><input type="text" value="Imobiliária Central"></td>
+          <td><input type="text" value="Aluguel Sede"></td>
+          <td><input type="number" class="val-input" value="1200.00" step="0.01" onchange="calc()"></td>
+          <td>
+            <select class="status-select" onchange="calc()">
+              <option value="Pago" selected>Pago</option>
+              <option value="Pendente">Pendente</option>
+            </select>
+          </td>
+          <td><select><option>Sim</option><option>Não</option></select></td>
+        </tr>
+        <tr>
+          <td><input type="date" value="2026-10-05"></td>
+          <td><select class="type-select" onchange="calc()"><option value="Saída" selected>Saída</option><option value="Entrada">Entrada</option></select></td>
+          <td><input type="text" value="Insumos"></td>
+          <td><input type="text" value="Distribuidora Silva"></td>
+          <td><input type="text" value="Matéria Prima NF 458"></td>
+          <td><input type="number" class="val-input" value="850.00" step="0.01" onchange="calc()"></td>
+          <td>
+            <select class="status-select" onchange="calc()">
+              <option value="Pendente" selected>Pendente</option>
+              <option value="Pago">Pago</option>
+            </select>
+          </td>
+          <td><select><option selected>Não</option><option>Sim</option></select></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ABA 3: PRECIFICAÇÃO E ESTOQUE -->
+  <div id="precificacao" class="tab-content">
+    <h2>Precificação & Controle de Custos</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>SKU</th>
+          <th>Produto / Serviço</th>
+          <th>Custo Atual (R$)</th>
+          <th>Margem (%)</th>
+          <th>Preço Venda (R$)</th>
+          <th>Sugestão Reajuste</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>PRD-001</td>
+          <td><input type="text" value="Produto Exemplo A"></td>
+          <td><input type="number" value="18.00" step="0.01"></td>
+          <td><input type="number" value="50"></td>
+          <td><input type="number" value="30.00" step="0.01"></td>
+          <td><span class="badge badge-success">Preço Ok</span></td>
+        </tr>
+        <tr>
+          <td>PRD-002</td>
+          <td><input type="text" value="Produto Exemplo B"></td>
+          <td><input type="number" value="130.00" step="0.01"></td>
+          <td><input type="number" value="45"></td>
+          <td><input type="number" value="250.00" step="0.01"></td>
+          <td><span class="badge badge-warning">Revisar Custo</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ABA 4: BANCO DE DADOS -->
+  <div id="cadastros" class="tab-content">
+    <h2>Banco de Dados de Pessoas e Categorias</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Razão Social / Nome</th>
+          <th>Tipo</th>
+          <th>CPF/CNPJ</th>
+          <th>Contato</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>CAD-001</td>
+          <td><input type="text" value="Cliente ABC Ltda"></td>
+          <td>Cliente</td>
+          <td>00.000.000/0001-00</td>
+          <td>(31) 99999-0001</td>
+        </tr>
+        <tr>
+          <td>CAD-002</td>
+          <td><input type="text" value="Imobiliária Central"></td>
+          <td>Fornecedor</td>
+          <td>11.111.111/0001-11</td>
+          <td>(31) 99999-0002</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ABA 5: ROTINAS DE ATUALIZAÇÃO -->
+  <div id="rotinas" class="tab-content">
+    <h2>Quadro de Rotinas de Atualização e Auditoria</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Frequência</th>
+          <th>Tarefa / Rotina</th>
+          <th>Responsável</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Diária</td>
+          <td>Lançamento de Entradas e Saídas</td>
+          <td>Financeiro</td>
+          <td><span class="badge badge-success">Concluído</span></td>
+        </tr>
+        <tr>
+          <td>Semanal</td>
+          <td>Reconciliação Bancária com Extrato</td>
+          <td>Gestor</td>
+          <td><span class="badge badge-warning">Pendente</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <script>
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+      
+      document.getElementById(tabId).classList.add('active');
+      event.currentTarget.classList.add('active');
+    }
+
+    function calc() {
+      let receita = 0;
+      let despesa = 0;
+      let apagar = 0;
+
+      const rows = document.querySelectorAll('#tb-lancamentos tr');
+      rows.forEach(row => {
+        const type = row.querySelector('.type-select').value;
+        const status = row.querySelector('.status-select').value;
+        const val = parseFloat(row.querySelector('.val-input').value) || 0;
+
+        if (status === 'Pago') {
+          if (type === 'Entrada') receita += val;
+          if (type === 'Saída') despesa += val;
+        } else if (status === 'Pendente' && type === 'Saída') {
+          apagar += val;
+        }
+      });
+
+      const lucro = receita - despesa;
+
+      document.getElementById('dash-receita').innerText = `R$ ${receita.toFixed(2)}`;
+      document.getElementById('dash-despesa').innerText = `R$ ${despesa.toFixed(2)}`;
+      document.getElementById('dash-lucro').innerText = `R$ ${lucro.toFixed(2)}`;
+      document.getElementById('dash-apagar').innerText = `R$ ${apagar.toFixed(2)}`;
+    }
+
+    // Calcular totais iniciais ao carregar a página
+    window.onload = calc;
+  </script>
+</body>
+</html>
